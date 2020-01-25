@@ -8,8 +8,8 @@ int main(void)
 {
 	// testSingleLinked();
 	// testStack();
-	test_linked_stack();
-	test_array_stack();
-	// testSort();
+	// test_linked_stack();
+	// test_array_stack();
+	test_sort();
 	return 0;
 }
