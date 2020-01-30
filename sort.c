@@ -135,6 +135,11 @@ void merge(int arr[], const size_t len)
 	merge_sort(arr, 0, len - 1);
 }
 
+/**
+ * 如果两个变量指向同一个地址, 说明是同一个变量, 就不需要交换
+ * 对于使用加法, 异或的方式交换值, 会造成值变成零的情况
+ *
+ */
 void swap(int* a, int* b)
 {
 	if (a == b) {
@@ -213,22 +218,92 @@ int a_c(int arr[], size_t start, size_t end, size_t order)
 	}
 }
 
-int a(int arr[], size_t len, size_t order)
+int* find_special_value(int arr[], size_t len, size_t order)
 {
 	if (len < order) {
-		return -1;
+		return NULL;
 	}
-	return a_c(arr, 0, len - 1, order);
+	int key = a_c(arr, 0, len - 1, order);
+	if (key < 0) {
+		return NULL;
+	}
+	return arr + key;
 }
 
-int find_special_value(int arr[], size_t len, size_t order)
+/**
+ * 桶排序对数据本身的要求比较严格, 如果数据本身的范围比较小比如 年龄
+ */
+void bucket(int arr[], size_t len)
 {
-	int k = a(arr, len, order);
-	if (k != -1) {
-		return arr[k];
+	//	
+}
+
+int* array_max(int arr[], size_t len)
+{
+	// 空数组怎么处理, 是否需要报错处理
+	if (len <= 0 || arr == NULL) {
+		return NULL;
 	}
-	// error 怎么处理
-	return ;
+	int* max = &arr[0];
+	for (size_t i = 1; i < len; i++)
+	{
+		if (arr[i] > *max) {
+			max = &arr[i];
+		}
+	}
+	return max;
+}
+
+/**
+ * 计数排序(我们需要知道数据的取值范围)
+ * 现在规定数据的取值范围必须在100以内
+ */
+void count_sort(int arr[], size_t len)
+{
+	int* max = array_max(arr, len);
+	if (NULL == max) {
+		// 说明是一个空数组
+		return;
+	}
+
+	if (*max >= 1000) {
+		fprintf(stderr, "该数组不适合计数排序");
+		return;
+	}
+	int* bucket = malloc(sizeof(int) * (*max + 1));
+	if (NULL == bucket) {
+		fprintf(stderr, "内存分配失败");
+		return;
+	}
+	for (size_t i = 0; i <= *max; i++)
+	{
+		bucket[i] = 0;
+	}
+	for (size_t i = 0; i < len; i++)
+	{
+		bucket[arr[i]]++;
+	}
+	for (size_t i = 1; i <= *max; i++)
+	{
+		bucket[i] += bucket[i - 1];
+	}
+	int* r = malloc(sizeof(int) * len);
+	if (NULL == r) {
+		// 内存分配失败
+		fprintf(stderr, "内存分配失败");
+		return;
+	}
+
+	for (size_t i = len; i-- > 0;)
+	{
+		int index = bucket[arr[i]] - 1;
+		r[index] = arr[i];
+		bucket[arr[i]]--;
+	}
+	for (size_t i = 0; i < len; i++)
+	{
+		arr[i] = r[i];
+	}
 }
 
 void test_insertion(void)
@@ -295,13 +370,26 @@ void test_quick_sort()
 void test_find_special_value(void)
 {
 	int arr[] = { 11, 2, 8, 4, 23, 10 };
-	int r = find_special_value(arr, 6, 1);
-	assert(r == 23);
+	int* r = find_special_value(arr, 6, 1);
+	assert(*r == 23);
 
 	r = find_special_value(arr, 6, 3);
-	assert(r == 10);
+	assert(*r == 10);
 
 }
+
+void test_count_sort(void)
+{
+	int arr[] = {11, 25, 2, 12, 34, 9, 9, 12, 9, 10, 33};
+	count_sort(arr, 11);
+
+	int r[] = {2, 9, 9, 9, 10, 11, 12,  12, 25, 33, 34};
+	for (size_t i = 0; i < 11; i++)
+	{
+		assert(r[i] == arr[i]);
+	}
+}
+
 
 void test_sort(void)
 {
@@ -310,5 +398,6 @@ void test_sort(void)
 	test_bubble();
 	test_select();
 	test_merge_sort();
+	test_count_sort();
 }
 
