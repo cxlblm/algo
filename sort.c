@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*
 冒泡排序
@@ -82,9 +83,16 @@ void select(int* arr, size_t len)
 // 需要借助临时内存
 void merge_array(int arr[], size_t start, size_t end)
 {
-	size_t middle = (start + end) / 2;
+	if (start > end) {
+		return;
+	}
+	size_t middle = start + (end - start) / 2;
 	size_t i = start, j = middle + 1, k = 0;
 	int* temp = malloc(sizeof(int) * (end - start + 1));
+	if (NULL == temp) {
+		// 内存分配出错
+		return;
+	}
 	while (i <= middle && j <= end) {
 		if (arr[i] <= arr[j]) {
 			temp[k] = arr[i];
@@ -121,7 +129,7 @@ void merge_sort(int arr[], size_t start, size_t end)
 	if (start >= end) {
 		return;
 	}
-	size_t middle = (start + end) / 2;
+	size_t middle = start + (end - start) / 2;
 	merge_sort(arr, start, middle);
 	merge_sort(arr, middle + 1, end);
 	merge_array(arr, start, end);
@@ -188,7 +196,7 @@ void quick(int arr[], size_t len)
 	quick_c(arr, 0, len - 1);
 }
 
-int a_partition(int arr[], size_t start, size_t end)
+size_t a_partition(int arr[], size_t start, size_t end)
 {
 	int pivot = arr[end];
 	size_t i = start;
@@ -208,7 +216,7 @@ int a_c(int arr[], size_t start, size_t end, size_t order)
 	if (start >= end) {
 		return -1;
 	}
-	int pivot = a_partition(arr, start, end);
+	size_t pivot = a_partition(arr, start, end);
 	if (pivot + 1 == order) {
 		return pivot;
 	} else if (order > pivot + 1) {
@@ -275,35 +283,97 @@ void count_sort(int arr[], size_t len)
 		fprintf(stderr, "内存分配失败");
 		return;
 	}
-	for (size_t i = 0; i <= *max; i++)
+	for (int i = 0; i <= *max; i++)
 	{
 		bucket[i] = 0;
 	}
 	for (size_t i = 0; i < len; i++)
 	{
-		bucket[arr[i]]++;
+		++bucket[arr[i]];
 	}
-	for (size_t i = 1; i <= *max; i++)
+	for (int i = 1; i <= *max; i++)
 	{
 		bucket[i] += bucket[i - 1];
 	}
 	int* r = malloc(sizeof(int) * len);
 	if (NULL == r) {
 		// 内存分配失败
+		free(bucket);
 		fprintf(stderr, "内存分配失败");
 		return;
 	}
-
+	int index;
 	for (size_t i = len; i-- > 0;)
 	{
-		int index = bucket[arr[i]] - 1;
+		index = bucket[arr[i]] - 1;
 		r[index] = arr[i];
-		bucket[arr[i]]--;
+		--bucket[arr[i]];
 	}
 	for (size_t i = 0; i < len; i++)
 	{
 		arr[i] = r[i];
 	}
+	free(bucket);
+	free(r);
+}
+
+int char_to_int_index(char c)
+{
+	return (c == 'x' || c == 'X') ? 10 : c - '0';
+}
+
+/*
+ * 基数排序是不是针对数组类型的元素进行排序??
+ */
+void radix(char* arr[], size_t len, size_t max_len)
+{
+	int* bucket = malloc(sizeof(int) * 11);
+	if (NULL == bucket) {
+		// 内存分配失败
+		fprintf(stderr, "内存分配失败");
+		return;
+	}
+	for (size_t i = 0; i < 11; i++)
+	{
+		bucket[i] = 0;
+	}
+
+	char** temp = malloc(sizeof(char*) * len);
+	if (NULL == temp) {
+		free(bucket);
+		// 内存分配失败
+		fprintf(stderr, "内存分配失败");
+		return;
+	}
+	int index;
+	for (size_t byte = max_len; byte-- > 0;)
+	{
+		for (size_t j = 0; j < len; j++)
+		{
+			++bucket[char_to_int_index(arr[j][byte])];
+		}
+		for (size_t i = 1; i < 11; i++)
+		{
+			bucket[i] += bucket[i - 1];
+		}
+		for (size_t i = len; i-- > 0; )
+		{
+			int int_char = char_to_int_index(arr[i][byte]);
+			index = bucket[int_char] - 1;
+			temp[index] = arr[i];
+			--bucket[int_char];
+		}
+		for (size_t i = 0; i < len; i++)
+		{
+			arr[i] = temp[i];
+		}
+		for (size_t i = 0; i < 11; i++)
+		{
+			bucket[i] = 0;
+		}
+	}
+	free(temp);
+	free(bucket);
 }
 
 void test_insertion(void)
@@ -343,7 +413,7 @@ void test_select(void)
 	}
 }
 
-void test_merge_sort()
+void test_merge_sort(void)
 {
 	int arr[] = { 11, 2, 5, 8, 3, 5, 6 };
 	merge(arr, 7);
@@ -355,7 +425,7 @@ void test_merge_sort()
 
 }
 
-void test_quick_sort()
+void test_quick_sort(void)
 {
 	int arr[] = { 11, 2, 5, 8, 3, 5, 6 };
 	quick(arr, 7);
@@ -390,6 +460,39 @@ void test_count_sort(void)
 	}
 }
 
+void test_radix_sort(void)
+{
+	char* arr[] = {
+		"220283199207278653",
+		"140226198806257895",
+		"420111198806247774",
+		"350702199708039851",
+		"140411197503175077",
+		"321002197102154319",
+		"420900196312102597",
+		"65432619750317507X",
+		"230503199911261712",
+		"152526199207278752"
+	};
+	radix(arr, 10, 18);
+	char* r[] = {
+		"140226198806257895",
+		"140411197503175077",
+		"152526199207278752"
+		"220283199207278653",
+		"230503199911261712",
+		"321002197102154319",
+		"350702199708039851",
+		"420111198806247774",
+		"420900196312102597",
+		"65432619750317507X",
+	};
+	for (size_t i = 0; i < 10; i++)
+	{
+		printf("%s\n", arr[i]);
+	}
+}
+
 
 void test_sort(void)
 {
@@ -399,5 +502,6 @@ void test_sort(void)
 	test_select();
 	test_merge_sort();
 	test_count_sort();
+	test_radix_sort();
 }
 
