@@ -40,16 +40,17 @@ void insertion(int* arr, size_t len)
 	}
 	for (size_t i = 1; i < len; i++)
 	{
+		// i控制遍历所有的无序元素
 		int value = arr[i];		// 这里必须使用中间变量, 而不能使用索引
-		int j = i;
-		for (; j > 0; --j) {
-			if (value < arr[j - 1]) {
-				arr[j] = arr[j - 1];
+		int j = i - 1;		// 有序部分的最后一个元素
+		for (; j >= 0; --j) {
+			if (arr[j] > value) {
+				arr[j + 1] = arr[j];	// 向后移动有序的元素
 			} else {
 				break;
 			}
 		}
-		arr[j] = value;
+		arr[j + 1] = value;
 	}
 }
 
@@ -62,16 +63,16 @@ void select(int* arr, size_t len)
 		return;
 	}
 	size_t num = len - 1;
-	for (size_t i = 0; i < num; i++)
+	for (size_t i = 0; i < num; i++)	// 需要比较多少次
 	{
 		size_t min = i, j = i + 1;
 		for (; j < len; j++)
 		{
-			if (arr[j] < arr[min]) {
+			if (arr[j] < arr[min]) {	// 找到最小的元素
 				min = j;
 			}
 		}
-		if (i != min) {
+		if (i != min) {		// 将最小的元素与有序元素的最后一个交换位置
 			int temp = arr[min];
 			arr[min] = arr[i];
 			arr[i] = temp;
@@ -117,7 +118,7 @@ void merge_array(int arr[], size_t start, size_t end)
 		s++;
 	}
 
-	for (size_t i = 0; i <=end - start ; i++)
+	for (size_t i = 0; i <=end - start; i++)
 	{
 		arr[start + i] = temp[i];
 	}
@@ -165,6 +166,23 @@ void swap(int* a, int* b)
 
 int partition(int arr[], size_t start, size_t end)
 {
+	size_t len = end - start + 1;
+	size_t middle = start + (end - start) / 2;
+	if (len > 10) {
+		if (arr[0] > arr[end]) {
+			if (arr[middle] > arr[0]) {
+				swap(&arr[0], &arr[end]);
+			} else if (arr[middle] > arr[end]) {
+				swap(&arr[middle], &arr[end]);
+			}
+		} else {	// arr[0] <= arr[end]
+			if (arr[middle] < arr[0]) {
+				swap(&arr[0], &arr[end]);
+			} else if (arr[middle] < arr[end]) {
+				swap(&arr[middle], &arr[end]);
+			}
+		}
+	}
 	int pivot = arr[end];
 	size_t i = start;
 	for (size_t j = start; j < end; j++)
@@ -322,6 +340,14 @@ int char_to_int_index(char c)
 	return (c == 'x' || c == 'X') ? 10 : c - '0';
 }
 
+void bucket_init_zero(int* bucket, size_t len)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		bucket[i] = 0;
+	}
+}
+
 /*
  * 基数排序是不是针对数组类型的元素进行排序??
  */
@@ -333,11 +359,7 @@ void radix(char* arr[], size_t len, size_t max_len)
 		fprintf(stderr, "内存分配失败");
 		return;
 	}
-	for (size_t i = 0; i < 11; i++)
-	{
-		bucket[i] = 0;
-	}
-
+	bucket_init_zero(bucket, 11);
 	char** temp = malloc(sizeof(char*) * len);
 	if (NULL == temp) {
 		free(bucket);
@@ -367,10 +389,8 @@ void radix(char* arr[], size_t len, size_t max_len)
 		{
 			arr[i] = temp[i];
 		}
-		for (size_t i = 0; i < 11; i++)
-		{
-			bucket[i] = 0;
-		}
+		bucket_init_zero(bucket, 11);
+		
 	}
 	free(temp);
 	free(bucket);
@@ -472,13 +492,13 @@ void test_radix_sort(void)
 		"420900196312102597",
 		"65432619750317507X",
 		"230503199911261712",
-		"152526199207278752"
+		"152526199207278752",
 	};
 	radix(arr, 10, 18);
 	char* r[] = {
 		"140226198806257895",
 		"140411197503175077",
-		"152526199207278752"
+		"152526199207278752",
 		"220283199207278653",
 		"230503199911261712",
 		"321002197102154319",
@@ -489,7 +509,7 @@ void test_radix_sort(void)
 	};
 	for (size_t i = 0; i < 10; i++)
 	{
-		printf("%s\n", arr[i]);
+		assert(r[i] == arr[i]);
 	}
 }
 
