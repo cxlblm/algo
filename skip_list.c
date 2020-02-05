@@ -161,6 +161,8 @@ void skip_list_delete(skip_list* sl, int value)
 				update[i]->forwards[i] = update[i]->forwards[i]->forwards[i];
 			}
 		}
+		// 在这里删除元素对不对呢??
+		free(p->forwards[0]);
 	}
 	while (sl->level_count > 1 && sl->head->forwards[sl->level_count] == NULL) {
 		--sl->level_count;
