@@ -6,6 +6,9 @@ extern void test_array_stack(void);
 extern void test_binary_search(void);
 extern void test_hash(void);
 extern void test_hash_map(void);
+extern void test_binary_tree(void);
+extern void test_heap(void);
+extern void test_linked_list(void);
 
 int main(void)
 {
@@ -17,7 +20,8 @@ int main(void)
 	// test_binary_search();
 	// test_skip_list();
 	// test_hash();
-
-	test_hash_map();
+	// test_binary_tree();
+	// test_heap();
+	test_linked_list();
 	return 0;
 }
