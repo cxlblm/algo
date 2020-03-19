@@ -95,7 +95,7 @@ int hash_map_delete(hash_map *map, char* str, size_t len)
 }
 
 // 
-int hash_map_entry_set(hash_map* map, hash_map_entry* new)
+void hash_map_entry_set(hash_map* map, hash_map_entry* new)
 {
 	int index = hash_map_index(map, new->key, strlen(new->key));
 	hash_map_entry* entry = map->map[index];

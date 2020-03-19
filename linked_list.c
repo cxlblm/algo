@@ -108,7 +108,6 @@ void test_linked_list_delete(void)
 void test_linked_list_add(void)
 {
 	linked_list* l = init_linked_list();
-	int r;
 	l->add(l, 1);
 	assert(l->head->next->value == 1);
 	l->add(l, 2);

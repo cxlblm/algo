@@ -23,6 +23,7 @@ void each(int* arr, size_t len)
 	}
 }
 
+
 int testArray(void)
 {
 	// 我们只能在定义数组的时候确定数组的长度(数组) 

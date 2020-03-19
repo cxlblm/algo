@@ -9,6 +9,11 @@ extern void test_hash_map(void);
 extern void test_binary_tree(void);
 extern void test_heap(void);
 extern void test_linked_list(void);
+extern void test_single_linked2(void);
+extern void test_string_match(void);
+extern void test_trie(void);
+extern void test_ac_trie(void);
+extern void test_queue(void);
 
 int main(void)
 {
@@ -22,6 +27,11 @@ int main(void)
 	// test_hash();
 	// test_binary_tree();
 	// test_heap();
-	test_linked_list();
+	// test_linked_list();
+	// test_single_linked2();
+	// test_string_match();
+	// test_trie();
+	test_ac_trie();
+	// test_queue();
 	return 0;
 }
